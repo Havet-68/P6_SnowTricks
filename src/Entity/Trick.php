@@ -27,9 +27,16 @@ class Trick
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: TrickVideo::class, orphanRemoval: true)]
     private $trickVideos;
 
+    #[ORM\Column(type: 'string', length: 255)]
+    private $content;
+
+    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: TrickPhoto::class, orphanRemoval: true)]
+    private $trickPhotos;
+
     public function __construct()
     {
         $this->trickVideos = new ArrayCollection();
+        $this->trickPhotos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -98,6 +105,48 @@ class Trick
             // set the owning side to null (unless already changed)
             if ($trickVideo->getTrick() === $this) {
                 $trickVideo->setTrick(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setContent(string $content): self
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TrickPhoto[]
+     */
+    public function getTrickPhotos(): Collection
+    {
+        return $this->trickPhotos;
+    }
+
+    public function addTrickPhoto(TrickPhoto $trickPhoto): self
+    {
+        if (!$this->trickPhotos->contains($trickPhoto)) {
+            $this->trickPhotos[] = $trickPhoto;
+            $trickPhoto->setTrick($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrickPhoto(TrickPhoto $trickPhoto): self
+    {
+        if ($this->trickPhotos->removeElement($trickPhoto)) {
+            // set the owning side to null (unless already changed)
+            if ($trickPhoto->getTrick() === $this) {
+                $trickPhoto->setTrick(null);
             }
         }
 
