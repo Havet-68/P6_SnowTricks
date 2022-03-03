@@ -1,0 +1,6 @@
+.banniere {
+    background-image: url("img/banniere2.jpg");
+    height: 295px;
+    background-size: 100%;
+    object-fit: contain;
+ }
