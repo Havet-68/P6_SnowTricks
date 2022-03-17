@@ -2,9 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Comments;
 use App\Entity\Trick;
+use App\Entity\TrickPhoto;
+use App\Entity\User;
 use App\Form\TrickType;
+use App\Form\CommentsType;
 use App\Repository\TrickRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,9 +47,31 @@ class TrickController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'trick_show', methods: ['GET'])]
-    public function show(Trick $trick): Response
+    #[Route('/{id}', name: 'trick_show', methods: ['GET', 'POST'])]
+    public function show(Trick $trick, EntityManagerInterface $entityManager, Request $request): Response
     {
+        $comments = new Comments;
+        
+        $dateTimeImmutable = new DateTimeImmutable();
+        $commentform = $this->createForm(CommentsType::class, $comments);
+        $commentform->handleRequest($request);
+
+        
+        if ($commentform->isSubmitted() && $commentform->isValid()) {
+            $comments->setCreatedAt($dateTimeImmutable);
+            $comments->setTrick($trick);
+            $comments->setUser()
+
+            $entityManager->flush();
+
+            return $this->redirectToRoute('trick_show', ['id'=>$trick->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('trick/show.html.twig', [
+            'trick' => $trick,
+            'commentForm' => $commentform,
+        ]);
+
         return $this->render('trick/show.html.twig', [
             'trick' => $trick,
         ]);
@@ -68,7 +95,7 @@ class TrickController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'trick_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'trick_delete', methods: ['POST'])]
     public function delete(Request $request, Trick $trick, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$trick->getId(), $request->request->get('_token'))) {
@@ -78,4 +105,5 @@ class TrickController extends AbstractController
 
         return $this->redirectToRoute('trick_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }

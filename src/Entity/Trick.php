@@ -33,10 +33,14 @@ class Trick
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: TrickPhoto::class, orphanRemoval: true)]
     private $trickPhotos;
 
+    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Comments::class, orphanRemoval: true)]
+    private $comments;
+
     public function __construct()
     {
         $this->trickVideos = new ArrayCollection();
         $this->trickPhotos = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -147,6 +151,36 @@ class Trick
             // set the owning side to null (unless already changed)
             if ($trickPhoto->getTrick() === $this) {
                 $trickPhoto->setTrick(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Comments[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comments $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setTrick($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comments $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getTrick() === $this) {
+                $comment->setTrick(null);
             }
         }
 
