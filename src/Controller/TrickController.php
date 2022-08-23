@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Comments;
 use App\Entity\Trick;
-use App\Entity\TrickPhoto;
-use App\Entity\User;
 use App\Form\TrickType;
 use App\Form\CommentsType;
 use App\Repository\TrickRepository;
@@ -20,23 +18,34 @@ use Symfony\Component\Routing\Annotation\Route;
 class TrickController extends AbstractController
 {
     #[Route('/', name: 'trick_index', methods: ['GET'])]
-    public function index(TrickRepository $trickRepository): Response
-    {
+    public function index(TrickRepository $trickRepository, EntityManagerInterface $em, ): Response
+    {   $comments = $em->getRepository(Comments::class)->findAll();
         return $this->render('trick/index.html.twig', [
             'tricks' => $trickRepository->findAll(),
+            'comments' => $comments,
         ]);
     }
 
     #[Route('/new', name: 'trick_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            return $this->redirectToRoute('home_page');
+        }
         $trick = new Trick();
         $form = $this->createForm(TrickType::class, $trick);
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($trick);
             $entityManager->flush();
+            $file = $form['photo']->getData();
+            $filename = $trick->getName().date('YmdHis').'.'.$file->guessExtension();
+            $trick->setPhoto($filename);
+            $entityManager->flush();
+            
+            $file->move( './img', $filename);
 
             return $this->redirectToRoute('trick_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -50,18 +59,19 @@ class TrickController extends AbstractController
     #[Route('/{id}', name: 'trick_show', methods: ['GET', 'POST'])]
     public function show(Trick $trick, EntityManagerInterface $entityManager, Request $request): Response
     {
-        $comments = new Comments;
-        
+        $comment = new Comments;
+        $comments = $entityManager->getRepository(Comments::class)->findBy(['trick'=>$trick]);
         $dateTimeImmutable = new DateTimeImmutable();
-        $commentform = $this->createForm(CommentsType::class, $comments);
+        $commentform = $this->createForm(CommentsType::class, $comment);
         $commentform->handleRequest($request);
 
         
         if ($commentform->isSubmitted() && $commentform->isValid()) {
-            $comments->setCreatedAt($dateTimeImmutable);
-            $comments->setTrick($trick);
-            $comments->setUser()
-
+            $comment->setCreatedAt($dateTimeImmutable);
+            $comment->setTrick($trick);
+            $comment->setUser($this->getUser());
+            $comment->setContent($request->get('comments')['content']);
+            $entityManager->persist($comment);
             $entityManager->flush();
 
             return $this->redirectToRoute('trick_show', ['id'=>$trick->getId()], Response::HTTP_SEE_OTHER);
@@ -70,22 +80,27 @@ class TrickController extends AbstractController
         return $this->renderForm('trick/show.html.twig', [
             'trick' => $trick,
             'commentForm' => $commentform,
-        ]);
-
-        return $this->render('trick/show.html.twig', [
-            'trick' => $trick,
+            'comments' => $comments,
+            
         ]);
     }
 
     #[Route('/{id}/edit', name: 'trick_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Trick $trick, EntityManagerInterface $entityManager): Response
     {
+        if (!($this->isGranted('ROLE_ADMIN') || $trick->getUser()->getEmail()==$this->getUser()->getUserIdentifier())) {
+            return $this->redirectToRoute('home_page');
+        }
         $form = $this->createForm(TrickType::class, $trick);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form['photo']->getData();
+            $filename = $trick->getName().date('YmdHis').'.'.$file->guessExtension();
+            $trick->setPhoto($filename);
             $entityManager->flush();
-
+            
+            $file->move( './img', $filename);
             return $this->redirectToRoute('trick_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -98,6 +113,9 @@ class TrickController extends AbstractController
     #[Route('/{id}/delete', name: 'trick_delete', methods: ['POST'])]
     public function delete(Request $request, Trick $trick, EntityManagerInterface $entityManager): Response
     {
+        if (!($this->isGranted('ROLE_ADMIN') || $trick->getUser()->getEmail()==$this->getUser()->getUserIdentifier())) {
+            return $this->redirectToRoute('home_page');
+        }
         if ($this->isCsrfTokenValid('delete'.$trick->getId(), $request->request->get('_token'))) {
             $entityManager->remove($trick);
             $entityManager->flush();

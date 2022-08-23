@@ -1,6 +1,21 @@
-.banniere {
+/* .banniere {
     background-image: url("img/banniere2.jpg");
     height: 295px;
     background-size: 100%;
     object-fit: contain;
- }
+ } */
+
+ :root {
+    /* colors */
+    --night-blue: #010135;
+    --middle-blue: #01528A;
+    --soft-blue: #0096D3;
+    --soft-yellow: #EEEBC2;
+    --soft-brown: #C7BFAA;
+}
+
+body {
+    background-color: var(--soft-yellow);
+}
+
+
