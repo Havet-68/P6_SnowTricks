@@ -18,8 +18,6 @@ class Comments
     #[ORM\Column(type: 'text')]
     private $content;
 
-    #[ORM\Column(type: 'boolean')]
-    private $active = false;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private $created_at;
@@ -31,17 +29,6 @@ class Comments
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
     private $user;
-
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
-    private $parent;
-
-    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
-    private $replies;
-
-    public function __construct()
-    {
-        $this->replies = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -60,17 +47,6 @@ class Comments
         return $this;
     }
 
-    public function getActive(): ?bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): self
-    {
-        $this->active = $active;
-
-        return $this;
-    }
 
 
     public function getCreatedAt(): ?\DateTimeImmutable
@@ -109,45 +85,4 @@ class Comments
         return $this;
     }
 
-    public function getParent(): ?self
-    {
-        return $this->parent;
-    }
-
-    public function setParent(?self $parent): self
-    {
-        $this->parent = $parent;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|self[]
-     */
-    public function getReplies(): Collection
-    {
-        return $this->replies;
-    }
-
-    public function addReply(self $reply): self
-    {
-        if (!$this->replies->contains($reply)) {
-            $this->replies[] = $reply;
-            $reply->setParent($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReply(self $reply): self
-    {
-        if ($this->replies->removeElement($reply)) {
-            // set the owning side to null (unless already changed)
-            if ($reply->getParent() === $this) {
-                $reply->setParent(null);
-            }
-        }
-
-        return $this;
-    }
 }

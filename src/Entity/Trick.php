@@ -24,22 +24,21 @@ class Trick
     #[ORM\Column(type: 'string', length: 255)]
     private $trickGroup;
 
-    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: TrickVideo::class, orphanRemoval: true)]
-    private $trickVideos;
-
     #[ORM\Column(type: 'string', length: 255)]
     private $content;
-
-    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: TrickPhoto::class, orphanRemoval: true)]
-    private $trickPhotos;
 
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Comments::class, orphanRemoval: true)]
     private $comments;
 
+    #[ORM\Column(type: 'string', length: 255)]
+    private $photo;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tricks')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $user;
+
     public function __construct()
     {
-        $this->trickVideos = new ArrayCollection();
-        $this->trickPhotos = new ArrayCollection();
         $this->comments = new ArrayCollection();
     }
 
@@ -85,36 +84,6 @@ class Trick
         return $this;
     }
 
-    /**
-     * @return Collection|TrickVideo[]
-     */
-    public function getTrickVideos(): Collection
-    {
-        return $this->trickVideos;
-    }
-
-    public function addTrickVideo(TrickVideo $trickVideo): self
-    {
-        if (!$this->trickVideos->contains($trickVideo)) {
-            $this->trickVideos[] = $trickVideo;
-            $trickVideo->setTrick($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTrickVideo(TrickVideo $trickVideo): self
-    {
-        if ($this->trickVideos->removeElement($trickVideo)) {
-            // set the owning side to null (unless already changed)
-            if ($trickVideo->getTrick() === $this) {
-                $trickVideo->setTrick(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getContent(): ?string
     {
         return $this->content;
@@ -123,36 +92,6 @@ class Trick
     public function setContent(string $content): self
     {
         $this->content = $content;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|TrickPhoto[]
-     */
-    public function getTrickPhotos(): Collection
-    {
-        return $this->trickPhotos;
-    }
-
-    public function addTrickPhoto(TrickPhoto $trickPhoto): self
-    {
-        if (!$this->trickPhotos->contains($trickPhoto)) {
-            $this->trickPhotos[] = $trickPhoto;
-            $trickPhoto->setTrick($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTrickPhoto(TrickPhoto $trickPhoto): self
-    {
-        if ($this->trickPhotos->removeElement($trickPhoto)) {
-            // set the owning side to null (unless already changed)
-            if ($trickPhoto->getTrick() === $this) {
-                $trickPhoto->setTrick(null);
-            }
-        }
 
         return $this;
     }
@@ -183,6 +122,30 @@ class Trick
                 $comment->setTrick(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(string $photo): self
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }
