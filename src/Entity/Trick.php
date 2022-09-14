@@ -24,7 +24,7 @@ class Trick
     #[ORM\Column(type: 'string', length: 255)]
     private $trickGroup;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'text')]
     private $content;
 
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Comments::class, orphanRemoval: true)]

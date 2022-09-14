@@ -3,48 +3,8 @@
 
 {% block body %}
 
-<div id="carouselExampleCrossfade" class="carousel slide carousel-fade mb-4" data-mdb-ride="carousel">
-  <div class="carousel-indicators">
-    <button
-      type="button"
-      data-mdb-target="#carouselExampleCrossfade"
-      data-mdb-slide-to="0"
-      class="active"
-      aria-current="true"
-      aria-label="Slide 1"
-    ></button>
-    <button
-      type="button"
-      data-mdb-target="#carouselExampleCrossfade"
-      data-mdb-slide-to="1"
-      aria-label="Slide 2"
-    ></button>
-    <button
-      type="button"
-      data-mdb-target="#carouselExampleCrossfade"
-      data-mdb-slide-to="2"
-      aria-label="Slide 3"
-    ></button>
-  </div>
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="img/banniere1.jpg" class="d-block w-100" alt="Wild Landscape"/>
-    </div>
-    <div class="carousel-item">
-      <img src="img/banniere2.jpg" class="d-block w-100" alt="Camera"/>
-    </div>
-    <div class="carousel-item">
-      <img src="img/banniere3.jpg" class="d-block w-100" alt="Exotic Fruits"/>
-    </div>
-  </div>
-  <button class="carousel-control-prev" type="button" data-mdb-target="#carouselExampleCrossfade" data-mdb-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-mdb-target="#carouselExampleCrossfade" data-mdb-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
+<div class="row banniere my-4">
+<img src="./img/banniere2.jpg" alt="">
 </div>
 
 <div class="container">
@@ -56,12 +16,12 @@
               <img class="card-img-top" src="./img/{{trick.photo}}" alt="Card image cap">
               <h5 class="card-header">{{trick.name}}</h5>
               <div class="card-body">              
-                <p class="card-text">{{trick.content}}</p>
-                <a href="#" class="btn btn-primary">Lire la suire</a>
+                <p class="card-text">{{trick.content|slice(0,100)|raw}}...</p>
+                <a href="trick/{{trick.id}}" class="btn btn-primary">Lire la suire</a>
                 {% if app.user %}
                 {% if is_granted('ROLE_ADMIN') or trick.user.id == app.user.id %}
-                <a class="edit btn btn-outline-warning" href="{{trick.id}}/edit">Modifier</a>                     
-                <a class="delete btn btn-outline-danger" href="{{trick.id}}/delete">delete</a>
+                <a class="edit btn btn-outline-warning" href="trick/{{trick.id}}/edit">Modifier</a>                     
+                <a class="delete btn btn-outline-danger" href="trick/{{trick.id}}/delete">delete</a>
                 {% endif %}
                 {% endif %}
               </div>

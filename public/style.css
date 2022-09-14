@@ -9,13 +9,28 @@
     /* colors */
     --night-blue: #010135;
     --middle-blue: #01528A;
-    --soft-blue: #0096D3;
-    --soft-yellow: #EEEBC2;
+    --soft-blue: #a229ff78;
+    --total-white: #ffffff;
     --soft-brown: #C7BFAA;
 }
 
 body {
-    background-color: var(--soft-yellow);
+    background-color: var(--total-white);
+}
+
+.navbar {
+    background-color: var(--soft-blue);
+}
+
+.card-img-top {
+    height: 250px;
+    object-fit: cover;
+
+}
+
+.banniere img {
+    max-height: 300px;
+    object-fit: cover;
 }
 
 

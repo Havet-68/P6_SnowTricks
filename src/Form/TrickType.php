@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Trick;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -19,7 +20,7 @@ class TrickType extends AbstractType
             ->add('difficulty')
             ->add('name')
             ->add('trickGroup')
-            ->add('content')
+            ->add('content', CKEditorType::class)
             
         ;
     }
