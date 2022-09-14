@@ -121,7 +121,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
+        // If you store any temporary, sensitive data on the user, clear it here (plus que douteux ce que j'ai fait là)
 
     }
 
