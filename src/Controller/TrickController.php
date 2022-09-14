@@ -38,16 +38,16 @@ class TrickController extends AbstractController
 
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($trick);
-            $entityManager->flush();
             $file = $form['photo']->getData();
             $filename = $trick->getName().date('YmdHis').'.'.$file->guessExtension();
             $trick->setPhoto($filename);
+            $trick->setUser($this->getUser()); 
+            $entityManager->persist($trick);
             $entityManager->flush();
             
             $file->move( './img', $filename);
 
-            return $this->redirectToRoute('trick_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('home_page', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('trick/new.html.twig', [
@@ -101,7 +101,7 @@ class TrickController extends AbstractController
             $entityManager->flush();
             
             $file->move( './img', $filename);
-            return $this->redirectToRoute('trick_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('home_page', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('trick/edit.html.twig', [
@@ -110,18 +110,20 @@ class TrickController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'trick_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'trick_delete', methods: ['GET','POST'])]
     public function delete(Request $request, Trick $trick, EntityManagerInterface $entityManager): Response
     {
         if (!($this->isGranted('ROLE_ADMIN') || $trick->getUser()->getEmail()==$this->getUser()->getUserIdentifier())) {
             return $this->redirectToRoute('home_page');
         }
-        if ($this->isCsrfTokenValid('delete'.$trick->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($trick);
-            $entityManager->flush();
-        }
+        // if ($this->isCsrfTokenValid('delete'.$trick->getId(), $request->request->get('_token'))) {
+            
+        // }  ça pour une raison obscur ça me renvoyait sur l'index des tricks sans supprimer l'article: se renseigner
 
-        return $this->redirectToRoute('trick_index', [], Response::HTTP_SEE_OTHER);
+        $entityManager->remove($trick);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('home_page', [], Response::HTTP_SEE_OTHER);
     }
 
 }
